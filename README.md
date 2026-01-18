@@ -6,5 +6,5 @@ Berikut adalah daftar akun yang dapat digunakan untuk masuk ke aplikasi:
 
 | Role   | Email             | Password  |
 |--------|-------------------|-----------|
-| Admin  | admin@humic.com   | admin123  |
-| Doctor | john.doe@example.com  | doctor123 |
+| Admin  | admin@dev.com   | 123123  |
+| Doctor | lumirahumic@gmail.com  | 123123 |
