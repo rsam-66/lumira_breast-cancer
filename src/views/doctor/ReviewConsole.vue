@@ -15,6 +15,7 @@ const isLoading = ref(true);
 const viewMode = ref("raw");
 const brushType = ref("normal");
 const brushSize = ref(1);
+const brushOpacity = ref(0.65);
 
 const doctorDrawings = ref([]);
 const doctorNote = ref("");
@@ -134,6 +135,8 @@ const getBrushButtonClass = (type) => {
       );
     case "malignant":
       return base + " bg-red-100 border-red-500 text-red-700 shadow-sm";
+    case "nocancer":
+      return base + " bg-blue-100 border-blue-500 text-blue-700 shadow-sm";
     case "erase":
       return base + " bg-gray-100 border-gray-500 text-gray-700 shadow-sm";
   }
@@ -142,7 +145,7 @@ const getBrushButtonClass = (type) => {
 
 <template>
   <div class="h-full w-full bg-slate-50 flex flex-col overflow-hidden relative">
-    <div id="workspace-container" class="flex-1 overflow-y-auto p-8 pb-32">
+    <div id="workspace-container" class="flex-1 overflow-y-auto p-4 md:p-6 pb-32">
       <div class="text-center mb-8">
         <h1 class="text-2xl font-medium text-slate-600">
           Reviewing Case #{{ patientId }}
@@ -155,9 +158,9 @@ const getBrushButtonClass = (type) => {
         </p>
       </div>
 
-      <div v-else class="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
+      <div v-else class="flex flex-col lg:flex-row gap-6 max-w-full mx-auto">
         <div class="flex-1 min-w-0">
-          <div class="bg-gray-100 rounded-3xl p-8 mb-6 shadow-sm border border-slate-200 relative">
+          <div class="bg-gray-100 rounded-3xl p-4 md:p-6 lg:p-8 mb-6 shadow-sm border border-slate-200 relative">
             <div class="flex justify-between items-center mb-6">
               <h2 class="font-bold text-slate-700 text-lg">Visual Analysis</h2>
               <button @click="showImageModal = true" class="text-xs font-bold text-[#0099ff] hover:underline">
@@ -165,10 +168,10 @@ const getBrushButtonClass = (type) => {
               </button>
             </div>
 
-            <div class="flex flex-col xl:flex-row gap-8 justify-center items-start">
+            <div class="flex flex-row flex-wrap gap-4 justify-center items-start">
               <div class="flex flex-col items-center">
                 <div
-                  class="rounded-xl overflow-hidden border-4 border-white shadow-lg bg-black w-[400px] h-[400px] relative">
+                  class="rounded-xl overflow-hidden border-4 border-white shadow-lg bg-black w-full max-w-[400px] aspect-square relative">
                   <img :src="aiResultImageSrc" class="w-full h-full object-contain" />
                   <div class="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
                     AI GradCam
@@ -181,7 +184,7 @@ const getBrushButtonClass = (type) => {
 
               <div class="flex flex-col items-center">
                 <MedicalCanvas ref="medicalCanvasRef" :baseImageSrc="currentImageSrc" :gradCamSrc="currentImageSrc"
-                  :brushType="brushType" :brushSize="brushSize" :viewMode="viewMode"
+                  :brushType="brushType" :brushSize="brushSize" :brushOpacity="brushOpacity" :viewMode="viewMode"
                   @update:drawings="(data) => (doctorDrawings = data)" />
               </div>
             </div>
@@ -229,6 +232,10 @@ const getBrushButtonClass = (type) => {
                     <div class="w-3 h-3 bg-red-600 rounded-sm"></div>
                     High
                   </button>
+                  <button @click="setBrushType('nocancer')" :class="getBrushButtonClass('nocancer')">
+                    <div class="w-3 h-3 bg-blue-600 rounded-sm"></div>
+                    Normal
+                  </button>
                   <div class="w-px h-8 bg-slate-200 mx-2"></div>
                   <button @click="setBrushType('erase')" :class="getBrushButtonClass('erase')">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
@@ -249,6 +256,17 @@ const getBrushButtonClass = (type) => {
                   <input type="range" min="1" max="5" step="1" v-model.number="brushSize"
                     class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#0099ff]" />
                   <span class="text-xs font-bold text-slate-400">Large</span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <span class="font-bold text-slate-600 w-24">Opacity:</span>
+                <div
+                  class="flex-1 flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-slate-200 max-w-md">
+                  <span class="text-xs font-bold text-slate-400">0%</span>
+                  <input type="range" min="0.1" max="1" step="0.05" v-model.number="brushOpacity"
+                    class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#0099ff]" />
+                  <span class="text-xs font-bold text-slate-400">100%</span>
                 </div>
               </div>
             </div>
@@ -316,7 +334,7 @@ const getBrushButtonClass = (type) => {
           </div>
         </div>
 
-        <div class="w-full lg:w-80 shrink-0">
+        <div class="w-full lg:w-72 shrink-0">
           <DiagnosisPanel :patientId="patientId" :patientData="patientData" :aiPrediction="aiPrediction"
             @update:diagnosis="(val) => console.log('Doctor selected:', val)"
             @update:agreement="(val) => (doctorAgreement = val)" />
