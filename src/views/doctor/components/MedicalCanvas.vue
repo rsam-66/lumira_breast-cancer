@@ -6,6 +6,7 @@ const props = defineProps({
   gradCamSrc: String, // New prop for AI Result
   brushType: { type: String, default: 'normal' },
   brushSize: { type: Number, default: 1 },
+  brushOpacity: { type: Number, default: 0.65 },
   viewMode: { type: String, default: 'raw' }
 });
 
@@ -33,6 +34,7 @@ const brushColors = {
   normal: '#00FF00',
   benign: '#FFC107',
   malignant: '#FF0000',
+  nocancer: '#0099ff',
   erase: 'destination-out'
 };
 
@@ -248,7 +250,7 @@ watch(() => props.gradCamSrc, (newVal) => {
               image: maskImageObj,
               width: width,
               height: height,
-              opacity: 0.65,
+              opacity: props.brushOpacity,
               listening: false
             }" />
           </v-layer>
