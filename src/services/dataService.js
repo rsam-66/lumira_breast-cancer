@@ -231,8 +231,13 @@ export const dataService = {
           original_image_path,
           validation_status,
           doctor_diagnosis,
+          doctor_notes,
+          doctor_brush_path,
           ai_diagnosis,
-          uploaded_at
+          ai_gradcam_path,
+          is_ai_accurate,
+          uploaded_at,
+          validated_at
         )
       `,
       )
