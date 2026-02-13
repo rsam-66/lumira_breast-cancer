@@ -108,7 +108,7 @@ export const dataService = {
     await logActivity(
       "ADD_DOCTOR",
       `Added new doctor: ${doctor.name}`,
-      data[0].id
+      data[0].id,
     );
 
     return data[0];
@@ -154,7 +154,7 @@ export const dataService = {
             console.warn(
               "Auth UID not found for email:",
               currentDoctor.email,
-              "- Skipping Auth Update"
+              "- Skipping Auth Update",
             );
           }
         }
@@ -234,7 +234,7 @@ export const dataService = {
           ai_diagnosis,
           uploaded_at
         )
-      `
+      `,
       )
       .order("id", { ascending: true });
 
@@ -250,7 +250,7 @@ export const dataService = {
       if (latestRecord && latestRecord.original_image_path) {
         imageUrl = getPublicImageUrl(
           latestRecord.original_image_path,
-          "breast-cancer-images"
+          "breast-cancer-images",
         );
       }
 
@@ -307,7 +307,7 @@ export const dataService = {
         `
         *,
         users (name)
-      `
+      `,
       )
       .order("timestamp", { ascending: false })
       .limit(10);
@@ -469,24 +469,23 @@ export const dataService = {
       const aiResult = await aiService.predict(file);
       aiDiagnosis = JSON.stringify(aiResult);
 
-      if (aiResult.gradcam_path) {
+      if (aiResult.gradcam_base64) {
         try {
-          console.log(
-            "Found GradCAM path in AI result:",
-            aiResult.gradcam_path
-          );
-          const filename = aiResult.gradcam_path.split(/[\\/]/).pop();
-          const encodedFilename = encodeURIComponent(filename);
-          const gradCamUrl = `http://localhost:8000/gambar_api/${encodedFilename}`;
-          console.log("Fetching GradCAM from:", gradCamUrl);
+          console.log("Found GradCAM base64 in AI result, decoding...");
+          const base64Data = aiResult.gradcam_base64;
+          const byteString = atob(base64Data);
+          const ab = new ArrayBuffer(byteString.length);
+          const ia = new Uint8Array(ab);
+          for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+          }
+          const blob = new Blob([ab], { type: "image/png" });
+          console.log("Decoded GradCAM blob:", blob.size, blob.type);
 
-          const res = await fetch(gradCamUrl);
-          if (!res.ok)
-            throw new Error(`Failed to fetch GradCAM: ${res.statusText}`);
-          const blob = await res.blob();
-          console.log("Fetched GradCAM blob:", blob.size, blob.type);
-
-          const gradCamStoragePath = `gradcam/${filename}`;
+          const gradcamFilename = aiResult.gradcam_path
+            ? aiResult.gradcam_path.split(/[\\/]/).pop()
+            : `gradcam_${Date.now()}.png`;
+          const gradCamStoragePath = `gradcam/${gradcamFilename}`;
           const { error: gcUploadError } = await supabase.storage
             .from("breast-cancer-images")
             .upload(gradCamStoragePath, blob, {
@@ -497,7 +496,7 @@ export const dataService = {
           if (!gcUploadError) {
             console.log(
               "Successfully uploaded GradCAM to Supabase:",
-              gradCamStoragePath
+              gradCamStoragePath,
             );
             aiGradCamPath = gradCamStoragePath;
           } else {
@@ -513,7 +512,7 @@ export const dataService = {
 
       await logActivity(
         "AI_ANALYSIS",
-        `AI Analysis for patient ${patientId}: ${readableDiagnosis}`
+        `AI Analysis for patient ${patientId}: ${readableDiagnosis}`,
       );
     } catch (aiError) {
       console.error("AI Service Failed, but image uploaded:", aiError);
@@ -538,7 +537,7 @@ export const dataService = {
 
     await logActivity(
       "UPLOAD_IMAGE",
-      `Uploaded medical record for patient ID: ${patientId}`
+      `Uploaded medical record for patient ID: ${patientId}`,
     );
 
     return data[0];
@@ -547,7 +546,7 @@ export const dataService = {
   async logAIAnalysis(patientId, result = "Analysis Run") {
     await logActivity(
       "AI_ANALYSIS",
-      `Performed AI Analysis for patient ID: ${patientId}. Result: ${result}`
+      `Performed AI Analysis for patient ID: ${patientId}. Result: ${result}`,
     );
   },
 
@@ -595,7 +594,7 @@ export const dataService = {
           ai_gradcam_path,
           doctor_brush_path
         )
-      `
+      `,
       )
       .eq("id", id)
       .single();
@@ -615,19 +614,19 @@ export const dataService = {
       if (latestRecord.original_image_path) {
         imageUrl = getPublicImageUrl(
           latestRecord.original_image_path,
-          "breast-cancer-images"
+          "breast-cancer-images",
         );
       }
       if (latestRecord.ai_gradcam_path) {
         aiGradCamUrl = getPublicImageUrl(
           latestRecord.ai_gradcam_path,
-          "breast-cancer-images"
+          "breast-cancer-images",
         );
       }
       if (latestRecord.doctor_brush_path) {
         doctorBrushUrl = getPublicImageUrl(
           latestRecord.doctor_brush_path,
-          "breast-cancer-images"
+          "breast-cancer-images",
         );
       }
     }
@@ -716,7 +715,7 @@ export const dataService = {
 
     await logActivity(
       "DOCTOR_REVIEW",
-      `Doctor submitted review (New Record) for patient ${originalRecord.patient_id}`
+      `Doctor submitted review (New Record) for patient ${originalRecord.patient_id}`,
     );
 
     return data[0];
@@ -746,27 +745,27 @@ export const dataService = {
       const aiResult = await aiService.predict(file);
       aiDiagnosis = JSON.stringify(aiResult);
 
-      if (aiResult.gradcam_path) {
+      if (aiResult.gradcam_base64) {
         try {
+          console.log("Re-Analysis: Found GradCAM base64, decoding...");
+          const base64Data = aiResult.gradcam_base64;
+          const byteString = atob(base64Data);
+          const ab = new ArrayBuffer(byteString.length);
+          const ia = new Uint8Array(ab);
+          for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+          }
+          const blob = new Blob([ab], { type: "image/png" });
           console.log(
-            "Re-Analysis: Found GradCAM path in AI result:",
-            aiResult.gradcam_path
-          );
-          const filename = aiResult.gradcam_path.split(/[\\/]/).pop();
-          const encodedFilename = encodeURIComponent(filename);
-          const gradCamUrl = `http://localhost:8000/gambar_api/${encodedFilename}`;
-          console.log("Re-Analysis: Fetching GradCAM from:", gradCamUrl);
-          const res = await fetch(gradCamUrl);
-          if (!res.ok)
-            throw new Error(`Failed to fetch GradCAM: ${res.statusText}`);
-          const blob = await res.blob();
-          console.log(
-            "Re-Analysis: Fetched GradCAM blob:",
+            "Re-Analysis: Decoded GradCAM blob:",
             blob.size,
-            blob.type
+            blob.type,
           );
 
-          const gradCamStoragePath = `gradcam/${filename}`;
+          const gradcamFilename = aiResult.gradcam_path
+            ? aiResult.gradcam_path.split(/[\\/]/).pop()
+            : `gradcam_${Date.now()}.png`;
+          const gradCamStoragePath = `gradcam/${gradcamFilename}`;
           const { error: gcUploadError } = await supabase.storage
             .from("breast-cancer-images")
             .upload(gradCamStoragePath, blob, {
@@ -777,13 +776,13 @@ export const dataService = {
           if (!gcUploadError) {
             console.log(
               "Re-Analysis: Successfully uploaded GradCAM to Supabase:",
-              gradCamStoragePath
+              gradCamStoragePath,
             );
             aiGradCamPath = gradCamStoragePath;
           } else {
             console.error(
               "Re-Analysis: Supabase GradCAM Upload Error:",
-              gcUploadError
+              gcUploadError,
             );
           }
         } catch (gcErr) {
@@ -796,7 +795,7 @@ export const dataService = {
 
       await logActivity(
         "AI_REANALYSIS",
-        `AI Re-Analysis for patient ${patientId}: ${readableDiagnosis}`
+        `AI Re-Analysis for patient ${patientId}: ${readableDiagnosis}`,
       );
     } catch (aiError) {
       console.error("AI Re-Analysis Failed:", aiError);

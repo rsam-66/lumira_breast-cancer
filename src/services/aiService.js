@@ -1,5 +1,5 @@
 import axios from "axios";
-const AI_API_URL = "http://localhost:8000";
+const AI_API_URL = "https://zafur-integratedai-demo.hf.space";
 
 export const aiService = {
   async predict(file) {
@@ -7,7 +7,11 @@ export const aiService = {
     formData.append("file", file);
 
     try {
-      const response = await axios.post(`${AI_API_URL}/predict`, formData);
+      const response = await axios.post(`${AI_API_URL}/predict`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       return response.data;
     } catch (error) {
