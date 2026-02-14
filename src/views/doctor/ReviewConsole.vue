@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { dataService } from "@/services/dataService.js";
 
@@ -7,9 +7,11 @@ import MedicalCanvas from "./components/MedicalCanvas.vue";
 import DiagnosisPanel from "./components/DiagnosisPanel.vue";
 import ImageInputModal from "../../components/common/ImageInputModal.vue";
 
+const route = useRoute();
 const props = defineProps(["id"]);
 
 const patientId = props.id;
+const isEditMode = computed(() => route.query.mode === "edit");
 
 const isLoading = ref(true);
 const viewMode = ref("raw");
@@ -148,7 +150,7 @@ const getBrushButtonClass = (type) => {
     <div id="workspace-container" class="flex-1 overflow-y-auto p-4 md:p-6 pb-32">
       <div class="text-center mb-8">
         <h1 class="text-2xl font-medium text-slate-600">
-          Reviewing Case #{{ patientId }}
+          {{ isEditMode ? "Editing" : "Reviewing" }} Case #{{ patientId }}
         </h1>
       </div>
 
@@ -171,7 +173,7 @@ const getBrushButtonClass = (type) => {
             <div class="flex flex-row flex-wrap gap-4 justify-center items-start">
               <div class="flex flex-col items-center">
                 <div
-                  class="rounded-xl overflow-hidden border-4 border-white shadow-lg bg-black w-full max-w-[400px] aspect-square relative">
+                  class="rounded-xl overflow-hidden border-4 border-white shadow-lg bg-black w-full max-w-[200px] aspect-square relative">
                   <img :src="aiResultImageSrc" class="w-full h-full object-contain" />
                   <div class="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
                     AI GradCam
@@ -180,6 +182,22 @@ const getBrushButtonClass = (type) => {
                 <p class="mt-3 font-bold text-slate-600 uppercase tracking-widest text-xs">
                   AI Result
                 </p>
+
+                <!-- Previous Review Result (Only in Edit Mode / if exists) -->
+                <div v-if="patientData.doctorBrushImage" class="mt-6 flex flex-col items-center">
+                  <div
+                    class="rounded-xl overflow-hidden border-4 border-white shadow-lg bg-black w-full max-w-[200px] aspect-square relative group cursor-pointer hover:scale-105 transition-transform"
+                    @click="currentImageSrc = patientData.doctorBrushImage">
+                    <img :src="patientData.doctorBrushImage" class="w-full h-full object-contain" />
+                    <div
+                      class="absolute top-2 left-2 bg-blue-600/80 text-white text-[10px] px-2 py-0.5 rounded backdrop-blur-sm shadow-sm">
+                      Previous Review
+                    </div>
+                  </div>
+                  <p class="mt-2 font-bold text-slate-400 uppercase tracking-widest text-[10px]">
+                    Click to Load
+                  </p>
+                </div>
               </div>
 
               <div class="flex flex-col items-center">
