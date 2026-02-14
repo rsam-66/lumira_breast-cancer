@@ -43,7 +43,7 @@ const closeModal = () => {
 </script>
 
 <template>
-    <BaseModal :isOpen="isOpen" title="Select Mammogram Image" @close="closeModal">
+    <BaseModal :isOpen="isOpen" title="Select Ultrasound Image" @close="closeModal">
 
         <div class="flex border-b border-slate-200 mb-6">
             <button @click="activeTab = 'upload'" class="flex-1 pb-3 font-bold text-sm transition-colors relative"

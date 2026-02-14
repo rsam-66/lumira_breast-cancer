@@ -200,7 +200,7 @@ watch(
 
       <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
         <p class="text-xs text-yellow-700">
-          <strong>Note:</strong> The uploaded mammogram shows clear margins with
+          <strong>Note:</strong> The uploaded Ultrasound shows clear margins with
           no signs of microcalcifications.
         </p>
       </div>
