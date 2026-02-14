@@ -121,6 +121,11 @@ const handleImageUpdate = (newSrc) => {
 };
 const setBrushType = (type) => {
   brushType.value = type;
+  if (type === 'white' || type === 'erase') {
+    brushOpacity.value = 1.0;
+  } else {
+    brushOpacity.value = 0.65;
+  }
 };
 const getBrushButtonClass = (type) => {
   const base =
@@ -139,6 +144,8 @@ const getBrushButtonClass = (type) => {
       return base + " bg-red-100 border-red-500 text-red-700 shadow-sm";
     case "nocancer":
       return base + " bg-blue-100 border-blue-500 text-blue-700 shadow-sm";
+    case "white":
+      return base + " bg-white border-slate-400 text-slate-700 shadow-sm ring-1 ring-slate-100";
     case "erase":
       return base + " bg-gray-100 border-gray-500 text-gray-700 shadow-sm";
   }
@@ -253,6 +260,10 @@ const getBrushButtonClass = (type) => {
                   <button @click="setBrushType('nocancer')" :class="getBrushButtonClass('nocancer')">
                     <div class="w-3 h-3 bg-blue-600 rounded-sm"></div>
                     Normal
+                  </button>
+                  <button @click="setBrushType('white')" :class="getBrushButtonClass('white')">
+                    <div class="w-3 h-3 bg-white border border-slate-300 rounded-sm"></div>
+                    White
                   </button>
                   <div class="w-px h-8 bg-slate-200 mx-2"></div>
                   <button @click="setBrushType('erase')" :class="getBrushButtonClass('erase')">

@@ -35,6 +35,7 @@ const brushColors = {
   benign: '#FFC107',
   malignant: '#FF0000',
   nocancer: '#0099ff',
+  white: '#ffffff',
   erase: 'destination-out'
 };
 
@@ -155,6 +156,7 @@ const handleMouseDown = (e) => {
   maskCtx.lineCap = 'round';
   maskCtx.lineJoin = 'round';
   maskCtx.lineWidth = props.brushSize * 5;
+  maskCtx.globalAlpha = props.brushOpacity; // Apply opacity to stroke
 
   if (props.brushType !== 'erase') {
     maskCtx.strokeStyle = brushColors[props.brushType];
@@ -250,7 +252,7 @@ watch(() => props.gradCamSrc, (newVal) => {
               image: maskImageObj,
               width: width,
               height: height,
-              opacity: props.brushOpacity,
+              // opacity: props.brushOpacity, // REMOVED: Managed via stroke globalAlpha, so layer is always 100%
               listening: false
             }" />
           </v-layer>
