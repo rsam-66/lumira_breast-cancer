@@ -1,5 +1,5 @@
 import axios from "axios";
-const AI_API_URL = "https://zafur-integratedai-demo.hf.space";
+const AI_API_URL = import.meta.env.VITE_AI_API_URL;
 
 export const aiService = {
   async predict(file) {
