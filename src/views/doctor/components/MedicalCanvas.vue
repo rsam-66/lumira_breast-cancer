@@ -156,7 +156,7 @@ const handleMouseDown = (e) => {
   maskCtx.lineCap = 'round';
   maskCtx.lineJoin = 'round';
   maskCtx.lineWidth = props.brushSize * 5;
-  maskCtx.globalAlpha = props.brushOpacity; // Apply opacity to stroke
+  maskCtx.globalAlpha = props.brushType === 'erase' ? 1.0 : props.brushOpacity; // Full opacity for eraser, brush opacity for drawing
 
   if (props.brushType !== 'erase') {
     maskCtx.strokeStyle = brushColors[props.brushType];
@@ -241,7 +241,6 @@ watch(() => props.gradCamSrc, (newVal) => {
             <!-- 2. Overlay Tint for "Raw" view mode (Optional styling) -->
             <v-rect v-if="baseImageObj" :config="{
               x: 0, y: 0, width, height,
-              fill: '#0099ff',
               opacity: 0.1,
               listening: false
             }" />
